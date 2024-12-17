@@ -34,4 +34,7 @@ public class UserService {
         return passwordEncoder;
     }
 
+    public Optional<User> findByNationalId(String nationalId) {
+        return userRepository.findByNationalId(nationalId); // TC kimlik no ile kullanıcı arama
+    }
 }

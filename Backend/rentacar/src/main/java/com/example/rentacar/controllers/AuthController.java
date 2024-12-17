@@ -3,6 +3,7 @@ package com.example.rentacar.controllers;
 import com.example.rentacar.models.User;
 import com.example.rentacar.security.JwtUtils;
 import com.example.rentacar.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -50,13 +51,23 @@ public class AuthController {
      * Yeni kullanıcı kaydı
      */
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody User user) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody User user) {
+        // Kullanıcı adı kontrolü
         if (userService.findByUsername(user.getUsername()).isPresent()) {
             return ResponseEntity.badRequest().body("Bu kullanıcı adı zaten alınmış.");
         }
+
+        // TC Kimlik Numarası kontrolü
+        if (userService.findByNationalId(user.getNationalId()).isPresent()) {
+            return ResponseEntity.badRequest().body("Bu TC kimlik numarası zaten kayıtlı.");
+        }
+
+        // Kullanıcıyı kaydet
+        user.setRole("USER"); // Varsayılan rol USER
         userService.saveUser(user);
         return ResponseEntity.ok("Kayıt başarılı.");
     }
+
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout() {
