@@ -42,6 +42,32 @@ public class RentalController {
     }
 
     /**
+     * Kullanıcının aktif (devam eden) kiralamalarını getirir.
+     */
+    @GetMapping("/active")
+    public ResponseEntity<List<Rental>> getActiveRentals() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Kullanıcı bulunamadı."));
+
+        List<Rental> activeRentals = rentalService.getActiveRentals(user);
+        return ResponseEntity.ok(activeRentals);
+    }
+
+    /**
+     * Kullanıcının tamamlanmış kiralamalarını getirir.
+     */
+    @GetMapping("/completed")
+    public ResponseEntity<List<Rental>> getCompletedRentals() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Kullanıcı bulunamadı."));
+
+        List<Rental> completedRentals = rentalService.getCompletedRentals(user);
+        return ResponseEntity.ok(completedRentals);
+    }
+
+    /**
      * Yeni bir kiralama oluştur.
      */
     @PostMapping("/{carId}")
@@ -51,6 +77,11 @@ public class RentalController {
                 .orElseThrow(() -> new IllegalArgumentException("Kullanıcı bulunamadı."));
         Car car = carService.getCarById(carId)
                 .orElseThrow(() -> new IllegalArgumentException("Araba bulunamadı."));
+
+        // Adres ve telefon bilgisi doğrulaması
+        if (user.getAddress() == null || user.getPhoneNumber() == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
 
         Rental newRental = rentalService.createRental(user, car, rental);
         return ResponseEntity.ok(newRental);

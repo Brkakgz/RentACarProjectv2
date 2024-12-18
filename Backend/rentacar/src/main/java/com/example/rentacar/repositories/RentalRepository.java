@@ -13,4 +13,6 @@ import java.util.List;
 @Repository
 public interface RentalRepository extends JpaRepository<Rental, Long> {
     List<Rental> findByUser(User user); // Kullanıcıya ait kiralamaları getir
+    List<Rental> findByUserAndIsCompleted(User user, boolean isCompleted);
+
 }

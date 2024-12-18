@@ -50,4 +50,19 @@ public class RentalService {
         rental.setCompleted(true);
         rentalRepository.save(rental);
     }
+
+    /**
+     * Kullanıcının aktif (tamamlanmamış) kiralamalarını getirir.
+     */
+    public List<Rental> getActiveRentals(User user) {
+        return rentalRepository.findByUserAndIsCompleted(user, false);
+    }
+
+    /**
+     * Kullanıcının tamamlanmış kiralamalarını getirir.
+     */
+    public List<Rental> getCompletedRentals(User user) {
+        return rentalRepository.findByUserAndIsCompleted(user, true);
+    }
+
 }

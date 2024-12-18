@@ -1,10 +1,12 @@
 package com.example.rentacar.controllers;
 
+import com.example.rentacar.dtos.UserDTO;
 import com.example.rentacar.models.User;
 import com.example.rentacar.security.JwtUtils;
 import com.example.rentacar.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -73,4 +75,21 @@ public class AuthController {
     public ResponseEntity<String> logout() {
         return ResponseEntity.ok("Çıkış yapıldı. Lütfen token'ınızı silin.");
     }
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserDTO> getUserProfile() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Kullanıcı bulunamadı."));
+
+        UserDTO userDTO = new UserDTO(
+                user.getFirstName(),
+                user.getLastName(),
+                user.getNationalId(),
+                user.getPhoneNumber(),
+                user.getAddress()
+        );
+        return ResponseEntity.ok(userDTO);
+    }
+
 }
